@@ -13,12 +13,14 @@
         body { font-family: 'Quicksand', sans-serif; display: flex; flex-direction: column; align-items: center; background-color: var(--bg-yellow); color: var(--brand-teal); margin: 0; padding: 10px 20px; overflow-x: hidden; }
         .header-img { width: 400px; max-width: 90%; height: auto; margin-bottom: 5px; }
         
-        .scoreboard { background: white; border: 3px solid var(--brand-teal); border-radius: 12px; padding: 10px 12px; display: flex; gap: 12px; margin-bottom: 5px; box-shadow: 0 4px 0 var(--brand-teal); align-items: flex-end; }
-        .score-item { text-align: center; min-width: 75px; }
+        .scoreboard-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 5px; width: 340px; }
+        .scoreboard { background: white; border: 3px solid var(--brand-teal); border-radius: 12px; padding: 10px 12px; display: flex; gap: 12px; box-shadow: 0 4px 0 var(--brand-teal); align-items: flex-end; width: 100%; box-sizing: border-box; justify-content: space-around; }
+        .score-item { text-align: center; }
         .score-val { font-size: 18px; font-weight: 800; display: block; color: var(--brand-blue); line-height: 1; margin-bottom: 4px; }
         .score-label { font-size: 9px; text-transform: uppercase; font-weight: bold; }
 
-        /* Milk Spill Graphics */
+        .meta-stats { display: flex; justify-content: space-between; width: 100%; padding: 8px 5px 0; font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--brand-teal); }
+
         .milk-spill { position: absolute; left: 50px; top: 50%; z-index: 1; }
         .splat { width: 45px; height: 40px; background: #fff; border-radius: 45% 55% 50% 50%; position: relative; transform: rotate(-15deg); }
         .splat::after { content: ''; position: absolute; width: 22px; height: 22px; background: #fff; border-radius: 50%; top: -12px; left: 18px; }
@@ -29,13 +31,19 @@
         .game-layout { position: relative; display: flex; align-items: center; justify-content: center; width: 550px; height: 320px; margin-bottom: 5px; }
         .bowl-container { position: relative; width: 280px; height: 280px; background: #fff; border-radius: 50%; box-shadow: 0 8px 20px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; border: 10px solid var(--brand-teal); z-index: 2; }
         
-        .spoon-graphic { position: absolute; right: 55px; top: 50%; transform: translateY(-50%) rotate(25deg); display: flex; flex-direction: column; align-items: center; z-index: 1; transform-origin: center; }
+        .spoon-graphic { position: absolute; right: 55px; top: 50%; transform: translateY(-50%) rotate(25deg); display: flex; flex-direction: column; align-items: center; z-index: 1; transform-origin: center; pointer-events: none; }
         .spoon-head { width: 45px; height: 65px; background-color: var(--brand-teal); border-radius: 50% 50% 45% 45%; }
         .spoon-handle { width: 12px; height: 100px; background-color: var(--brand-teal); border-radius: 0 0 8px 8px; margin-top: -3px; }
 
-        /* Animation Keyframes */
-        @keyframes spoon-stir { 0% { transform: translateY(-50%) rotate(25deg); } 100% { transform: translateY(-50%) rotate(385deg); } }
-        @keyframes spoon-scoop { 0% { transform: translateY(-50%) rotate(25deg); } 50% { transform: translateY(-50%) rotate(10deg) scale(1.1); } 100% { transform: translateY(-50%) rotate(25deg); } }
+        @keyframes spoon-stir { 
+            0% { transform: translateY(-50%) rotate(25deg); } 
+            100% { transform: translateY(-50%) rotate(385deg); } 
+        }
+        @keyframes spoon-scoop { 
+            0% { transform: translateY(-50%) rotate(25deg); } 
+            50% { transform: translateY(-50%) rotate(5deg) scale(1.1); } 
+            100% { transform: translateY(-50%) rotate(25deg); } 
+        }
         .animate-stir { animation: spoon-stir 0.6s ease-in-out forwards; }
         .animate-scoop { animation: spoon-scoop 0.5s ease-in-out forwards; }
 
@@ -49,8 +57,9 @@
 
         .found-words { text-align: center; max-width: 450px; padding-top: 10px; }
         .word-tag { display: inline-block; background: #fff; padding: 5px 12px; margin: 3px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 3px solid var(--brand-teal); }
-        .preface { font-size: 12px; font-weight: bold; color: var(--brand-teal); margin-top: 15px; text-align: center; max-width: 320px; }
         
+        .preface { font-size: 12px; font-weight: bold; color: var(--brand-teal); margin-top: 20px; text-align: center; max-width: 320px; }
+
         #custom-modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
         .modal-content { background-color: var(--brand-teal); color: #fff; padding: 30px; border-radius: 20px; text-align: center; border: 4px solid var(--bg-yellow); max-width: 80%; }
     </style>
@@ -58,11 +67,17 @@
 <body>
     <img src="MuesliMix Page Header 800x200.png" alt="MuesliMix" class="header-img">
     
-    <div class="scoreboard">
-        <div class="score-item"><span class="score-label">Eaten</span><span id="count" class="score-val">0</span></div>
-        <div class="score-item"><span class="score-label">Leftovers</span><span id="leftovers" class="score-val">?</span></div>
-        <div class="score-item"><span class="score-label">Success</span><span id="total-score" class="score-val">0.0g</span></div>
-        <div class="score-item"><span class="score-label">Rating</span><span id="rank" class="score-val">Hangry</span></div>
+    <div class="scoreboard-container">
+        <div class="scoreboard">
+            <div class="score-item"><span class="score-label">Eaten</span><span id="count" class="score-val">0</span></div>
+            <div class="score-item"><span class="score-label">Leftovers</span><span id="leftovers" class="score-val">?</span></div>
+            <div class="score-item"><span class="score-label">Success</span><span id="total-score" class="score-val">0.0g</span></div>
+            <div class="score-item"><span class="score-label">Status</span><span id="rank" class="score-val">Hangry</span></div>
+        </div>
+        <div class="meta-stats">
+            <span>Puzzle Date: <span id="puzzle-date">-- --- --</span></span>
+            <span>Next Puzzle: <span id="countdown">--S --M --H --D</span></span>
+        </div>
     </div>
 
     <div class="game-layout">
@@ -76,46 +91,85 @@
         <div style="display:flex; gap:8px;">
             <button onclick="shuffleLetters()" style="background:var(--brand-blue)">Shuffle</button>
             <button onclick="submitWord()">Submit</button>
-            <button onclick="shareScore()" style="background:var(--nutri-green); color:var(--brand-teal)">Share</button>
         </div>
         <div id="feedback"></div>
     </div>
 
     <div class="preface">Struggling to find the high-fibre 9-letter word? Eat 5 words to unlock the answer...</div>
-    <button id="reveal-btn" disabled onclick="openRevealModal()" style="background: #95a5a6; opacity: 0.5; font-size: 12px; padding: 8px 15px; color: white; border-radius: 25px; border: none; margin-top: 5px;">Reveal the big one</button>
+    <button id="reveal-btn" disabled onclick="openRevealModal()" style="background: #95a5a6; opacity: 0.5; font-size: 12px; padding: 10px 20px; color: white; border-radius: 25px; border: none; margin-top: 8px;">Reveal the big one</button>
+    
     <div class="found-words" id="words-list"></div>
 
     <div id="custom-modal"><div class="modal-content"><h2 id="modal-text"></h2><button onclick="document.getElementById('custom-modal').style.display='none'" style="background:var(--bg-yellow); color:var(--brand-teal); padding:10px 20px; border-radius:20px; font-weight:bold; border:none; margin-top:15px; cursor:pointer;">Close</button></div></div>
 
     <script>
         const masterWords = ["MARKETING","BREAKFAST","RESOURCES","CHALLENGE","PLATFORMS","ADVENTURE","KNOWLEDGE","STRENGTHS","COMMUNITY","PRACTICAL","DIFFERENT","SOLUTIONS","STABILITY","BRIGHTEST","CREATIVES","DYNAMICS","EFFICIENT","FLAVOURFUL","GENEROSITY","HAPPINESS","INSIGHTS","JOURNEYS","KEYBOARDS","LIGHTNING","MOUNTAIN","NOTEBOOKS","OPTIMISED","PUBLISHED","QUESTIONS","RELIABLE","STRATEGIC","THOUGHTS","UNIVERSAL","VERSATILE","WONDERFUL","YESTERDAY"];
-        const commonDict = ["ABLE","ACID","AGED","ALSO","AREA","ARMS","ARMY","AWAY","BACK","BALL","BAND","BANK","BASE","BEAR","BEAT","BEEN","BELL","BELT","BEST","BILL","BIRD","BLOW","BLUE","BOAT","BODY","BOMB","BOND","BONE","BOOK","BOOM","BORN","BOTH","BOWL","BULK","BURN","BUSH","BUSY","CAKE","CALL","CALM","CAMP","CARD","CARE","CASE","CASH","CAST","CELL","CHAT","CHIP","CITY","CLAN","CLAY","CLIP","CLUB","COAL","COAT","CODE","COLD","COME","COOK","COOL","COPY","CORE","COST","CREW","CROP","DARK","DATA","DATE","DAWN","DEAD","DEAL","DEAR","DEEP","DENY","DESK","DIAL","DIET","DIRT","DISK","DOES","DONE","DOOR","DOSE","DOWN","DRAW","DREW","DROP","DRUG","DRUM","DUAL","DUCK","DUST","DUTY","EACH","EARN","EAST","EASY","ECHO","EDGE","EDIT","ELSE","EVEN","EVER","EXIT","FACE","FACT","FAIL","FAIR","FAKE","FALL","FAME","FARE","FARM","FAST","FATE","FEAR","FEEL","FEET","FELL","FELT","FILE","FILL","FILM","FIND","FINE","FIRE","FIRM","FISH","FIVE","FLAG","FLAT","FLOW","FOAM","FOLD","FOOD","FOOT","FORD","FORM","FORT","FOUR","FREE","FROM","FUEL","FULL","GAIN","GAME","GEAR","GIFT","GIRL","GIVE","GLAD","GOAL","GOAT","GOLD","GONE","GOOD","GRAB","GREW","GROW","GULF","HAIR","HALF","HALL","HALT","HAND","HANG","HARD","HATE","HAVE","HEAD","HEAL","HEAR","HEAT","HELL","HELP","HERE","HERO","HIDE","HIGH","HILL","HINT","HIRE","HOLD","HOLE","HOME","HOPE","HOST","HOUR","HUGE","HULL","HUNT","HURT","IDEA","IDLE","INCH","INTO","IRON","ITEM","JACK","JAIL","JAZZ","JOIN","JOKE","JUMP","JUNE","JUST","KEEP","KEPT","KEYS","KICK","KILL","KIND","KING","KNEE","KNEW","KNOT","KNOW","LACK","LADY","LAID","LAKE","LAMP","LAND","LANE","LAST","LATE","LAWN","LAZY","LEAD","LEAF","LEAN","LEFT","LEND","LENS","LESS","LIFT","LIKE","LIME","LINE","LINK","LION","LIST","LIVE","LOAD","LOAN","LOCK","LOGS","LONG","LOOK","LORD","LOSE","LOSS","LOST","LOUD","LOVE","LUCK","LUMP","LUNG","MAID","MAIL","MAIN","MAKE","MALE","MANY","MAPS","MARK","MASK","MASS","MATE","MEAL","MEAN","MEAT","MEET","MELT","MENU","MESS","MILD","MILE","MILK","MILL","MIND","MINE","MINT","MISS","MIST","MODE","MOON","MORE","MOST","MOVE","MUCH","MULE","MUTE","NAME","NEAR","NEAT","NECK","NEED","NEST","NETS","NEWS","NEXT","NICE","NICK","NINE","NODE","NONE","NOON","NOSE","NOTE","NOUN","NULL","OBEY","ODDS","OKAY","ONCE","ONLY","ONTO","OPEN","ORAL","OVER","PACE","PACK","PAGE","PAID","PAIN","PAIR","PALE","PALM","PANT","PARK","PART","PASS","PAST","PATH","PEAK","PEAR","PICK","PIER","PILE","PILL","PINE","PINK","PIPE","PLAN","PLAY","PLOT","PLUG","PLUS","POEM","POET","POLE","POLL","POND","POOL","POOR","PORT","POSE","POST","POUR","PRAY","PULL","PURE","PUSH","QUIT","QUIZ","RACE","RACK","RARE","RATE","READ","REAL","REAR","REED","RELY","RENT","REST","RICE","RICH","RIDE","RING","RISE","RISK","ROAD","ROCK","ROOF","ROOT","ROSE","RULE","RUSH","SAFE","SAIL","SALT","SAME","SAND","SAVE","SCAN","SEAL","SEAT","SEED","SEEK","SELL","SEND","SENT","SHIP","SHOP","SHOT","SHOW","SHUT","SIDE","SIGN","SILK","SING","SINK","SITE","SIZE","SKIN","SLIP","SLOW","SNOW","SOFT","SOIL","SOLD","SONG","SOON","SORT","SOUL","SOUP","SOUR","SPOT","STAR","STAY","STEP","STIR","STOP","SUCH","SUIT","SURE","SWIM","TAIL","TAKE","TALK","TALL","TANK","TAPE","TASK","TEAM","TELL","TENT","TERM","TEST","TEXT","THAN","THAT","THEM","THEN","THEY","THIN","THIS","THRU","TIDE","TILL","TIME","TINY","TOLL","TONE","TOOK","TOOL","TOPS","TORE","TOSS","TOUR","TOWN","TRAP","TREE","TRIM","TRIP","TRUE","TUBE","TUNE","TURN","TYPE","UNIT","UPON","USER","VAIN","VARY","VAST","VERY","VEST","VICE","VIEW","VOTE","WAGE","WAIT","WAKE","WALK","WALL","WANT","WARM","WARN","WASH","WAVE","WAYS","WEAK","WEAR","WEED","WEEK","WELD","WELL","WENT","WEST","WHAT","WHEN","WHOM","WIDE","WIFE","WILD","WILL","WIND","WINE","WING","WINS","WIRE","WISE","WISH","WITH","WOLF","WOOD","WORD","WORK","WORM","WRAP","YARD","YEAH","YEAR","YOGA","YOUR","ZERO","ZONE","ADAPT","ADULT","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALIEN","ALIGN","ALIKE","ALIVE","ALLOW","ALONE","ALTER","AMONG","ANGEL","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE","ARISE","ARRAY","ARROW","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWARD","AWARE","AWFUL","BACON","BADGE","BASIC","BASIS","BEACH","BEARD","BEAST","BEGIN","BEING","BELOW","BENCH","BREAD","BREAK","BRIEF","BRIGHT","BROAD","BUILD","BUILT","BUYER","CABLE","CANAL","CANDY","CAPED","CARGO","CARRY","CAUSE","CHAIN","CHAIR","CHART","CHECK","CHEST","CHIEF","CHILD","CHINA","CHOIR","CHOSE","CHUCK","CIVIL","CLAIM","CLASS","CLEAN","CLEAR","CLIMB","CLOCK","CLOSE","CLOTH","CLOUD","COACH","COAST","COUNT","COURT","COVER","CRAFT","CRASH","CREAM","CRIME","CROSS","CROWD","CROWN","CURVE","CYCLE","DAILY","DANCE","DATED","DEALT","DEATH","DEBUT","DELAY","DEPTH","DERBY","DIARY","DIGIT","DIRTY","DOUBT","DOZEN","DRAFT","DRAIN","DRAMA","DREAD","DREAM","DRESS","DRIFT","DRILL","DRINK","DRIVE","DROVE","DYING","EAGER","EARLY","EARTH","EIGHT","ELECT","ELITE","EMPTY","ENEMY","ENJOY","ENTER","ENTRY","EQUAL","ERROR","ESSAY","EVENT","EVERY","EXACT","EXIST","EXTRA","FAITH","FALSE","FAULT","FIBER","FIELD","FIFTH","FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH","FLEET","FLIGHT","FLOOR","FLUID","FOCUS","FORCE","FORTH","FORTY","FORUM","FOUND","FRAME","FRAUD","FRESH","FRONT","FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS","GLOBE","GLOVE","GOING","GRACE","GRADE","GRAND","GRAPH","GREAT","GREEN","GREET","GROUP","GROWN","GUARD","GUESS","GUEST","GUIDE","HABIT","HAPPY","HARSH","HEART","HEAVY","HELLO","HONEY","HONOR","HORSE","HOTEL","HOUSE","HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JOINT","JUDGE","JUICE","KNOCK","LABEL","LABOR","LARGE","LASER","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST","LEAVE","LEGAL","LEVEL","LIGHT","LIMIT","LINER","LINKS","LOCAL","LOGIC","LOOSE","LOWER","LUCKY","LUNCH","LYRIC","MAGIC","MAJOR","MAKER","MARCH","MATCH","MAYOR","MEDIA","METAL","METER","MICRO","MIDST","MIGHT","MINOR","MINUS","MIXED","MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE","MUSIC","NEVER","NIGHT","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR","OCEAN","OFFER","OFTEN","ORDER","OTHER","OUTER","OWNER","PANEL","PAPER","PARTY","PEACE","PHASE","PHONE","PHOTO","PIANO","PIECE","PILOT","PITCH","PLACE","PLAIN","PLANE","PLANT","PLATE","POINT","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROOF","PROUD","PROVE","PROXY","PULSE","PUNCH","QUERY","QUICK","QUIET","QUITE","RADIO","RAISE","RANGE","RAPID","RATIO","REACH","READY","REFER","REPLY","ROUTE","RIVER","ROUGH","ROUND","ROUTE","ROYAL","RURAL","SCALE","SCENE","SCOPE","SCORE","SENSE","SERVE","SETUP","SEVEN","SHADE","SHAKE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHIRT","SHOCK","SHOOT","SHORE","SHORT","SHOUT","SHOWN","SIGHT","SINCE","SIXTH","SIXTY","SIZED","SKILL","SLEEP","SLIDE","SMALL","SMART","SMILE","SMITH","SMOKE","SOLID","SOLVE","SOUND","SOUTH","SPACE","SPARE","SPEAK","SPEED","SPEND","SPENT","SPLIT","SPOKE","SPORT","STAFF","STAGE","STAKE","STAND","START","STATE","STEAK","STEEL","STICK","STILL","STOCK","STONE","STOOP","STORE","STORM","STORY","STRIP","STUCK","STUDY","STUFF","STYLE","SUGAR","SUITE","SUPER","SWEET","TABLE","TAKEN","TASTE","TAXES","TEACH","TEETH","TERMS","THANK","THEFT","THEIF","THEIR","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE","THREE","THROW","TIGHT","TIMES","TITLE","TODAY","TOKEN","TOTAL","TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND","TRIAL","TRIBE","TRICK","TRUCK","TRUST","TRUTH","TWICE","UNDER","UNION","UNITS","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VALUE","VIDEO","VIRUS","VISIT","VITAL","VOICE","WASTE","WATCH","WATER","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE","WOMAN","WORLD","WORRY","WORTH","WRITE","WRONG","YOUTH"];
+        const commonDict = ["ABLE","ACID","AGED","ALSO","AREA","ARMS","ARMY","AWAY","BACK","BALL","BAND","BANK","BASE","BEAR","BEAT","BEEN","BELL","BELT","BEST","BILL","BIRD","BLOW","BLUE","BOAT","BODY","BOMB","BOND","BONE","BOOK","BOOM","BORN","BOTH","BOWL","BULK","BURN","BUSH","BUSY","CAKE","CALL","CALM","CAMP","CARD","CARE","CASE","CASH","CAST","CELL","CHAT","CHIP","CITY","CLAN","CLAY","CLIP","CLUB","COAL","COAT","CODE","COLD","COME","COOK","COOL","COPY","CORE","COST","CREW","CROP","DARK","DATA","DATE","DAWN","DEAD","DEAL","DEAR","DEEP","DENY","DESK","DIAL","DIET","DIRT","DISK","DOES","DONE","DOOR","DOSE","DOWN","DRAW","DREW","DROP","DRUG","DRUM","DUAL","DUCK","DUST","DUTY","EACH","EARN","EAST","EASY","ECHO","EDGE","EDIT","ELSE","EVEN","EVER","EXIT","FACE","FACT","FAIL","FAIR","FAKE","FALL","FAME","FARE","FARM","FAST","FATE","FEAR","FEEL","FEET","FELL","FELT","FILE","FILL","FILM","FIND","FINE","FIRE","FIRM","FISH","FIVE","FLAG","FLAT","FLOW","FOAM","FOLD","FOOD","FOOT","FORD","FORM","FORT","FOUR","FREE","FROM","FUEL","FULL","GAIN","GAME","GEAR","GIFT","GIRL","GIVE","GLAD","GOAL","GOAT","GOLD","GONE","GOOD","GRAB","GREW","GROW","GULF","HAIR","HALF","HALL","HALT","HAND","HANG","HARD","HATE","HAVE","HEAD","HEAL","HEAR","HEAT","HELL","HELP","HERE","HERO","HIDE","HIGH","HILL","HINT","HIRE","HOLD","HOLE","HOME","HOPE","HOST","HOUR","HUGE","HULL","HUNT","HURT","IDEA","IDLE","INCH","INTO","IRON","ITEM","JACK","JAIL","JAZZ","JOIN","JOKE","JUMP","JUNE","JUST","KEEP","KEPT","KEYS","KICK","KILL","KIND","KING","KNEE","KNEW","KNOT","KNOW","LACK","LADY","LAID","LAKE","LAMP","LAND","LANE","LAST","LATE","LAWN","LAZY","LEAD","LEAF","LEAN","LEFT","LEND","LENS","LESS","LIFT","LIKE","LIME","LINE","LINK","LION","LIST","LIVE","LOAD","LOAN","LOCK","LOGS","LONG","LOOK","LORD","LOSE","LOSS","LOST","LOUD","LOVE","LUCK","LUMP","LUNG","MAID","MAIL","MAIN","MAKE","MALE","MANY","MAPS","MARK","MASK","MASS","MATE","MEAL","MEAN","MEAT","MEET","MELT","MENU","MESS","MILD","MILE","MILK","MILL","MIND","MINE","MINT","MISS","MIST","MODE","MOON","MORE","MOST","MOVE","MUCH","MULE","MUTE","NAME","NEAR","NEAT","NECK","NEED","NEST","NETS","NEWS","NEXT","NICE","NICK","NINE","NODE","NONE","NOON","NOSE","NOTE","NOUN","NULL","OBEY","ODDS","OKAY","ONCE","ONLY","ONTO","OPEN","ORAL","OVER","PACE","PACK","PAGE","PAID","PAIN","PAIR","PALE","PALM","PANT","PARK","PART","PASS","PAST","PATH","PEAK","PEAR","PICK","PIER","PILE","PILL","PINE","PINK","PIPE","PLAN","PLAY","PLOT","PLUG","PLUS","POEM","POET","POLE","POLL","POND","POOL","POOR","PORT","POSE","POST","POUR","PRAY","PULL","PURE","PUSH","QUIT","QUIZ","RACE","RACK","RARE","RATE","READ","REAL","REAR","REED","RELY","RENT","REST","RICE","RICH","RIDE","RING","RISE","RISK","ROAD","ROCK","ROOF","ROOT","ROSE","RULE","RUSH","SAFE","SAIL","SALT","SAME","SAND","SAVE","SCAN","SEAL","SEAT","SEED","SEEK","SELL","SEND","SENT","SHIP","SHOP","SHOT","SHOW","SHUT","SIDE","SIGN","SILK","SING","SINK","SITE","SIZE","SKIN","SLIP","SLOW","SNOW","SOFT","SOIL","SOLD","SONG","SOON","SORT","SOUL","SOUP","SOUR","SPOT","STAR","STAY","STEP","STIR","STOP","SUCH","SUIT","SURE","SWIM","TAIL","TAKE","TALK","TALL","TANK","TAPE","TASK","TEAM","TEAM","TELL","TENT","TERM","TEST","TEXT","THAN","THAT","THEM","THEN","THEY","THIN","THIS","THRU","TIDE","TILL","TIME","TINY","TOLL","TONE","TOOK","TOOL","TOPS","TORE","TOSS","TOUR","TOWN","TRAP","TREE","TRIM","TRIP","TRUE","TUBE","TUNE","TURN","TYPE","UNIT","UPON","USER","VAIN","VARY","VAST","VERY","VEST","VICE","VIEW","VOTE","WAGE","WAIT","WAKE","WALK","WALL","WANT","WARM","WARN","WASH","WAVE","WAYS","WEAK","WEAR","WEED","WEEK","WELD","WELL","WENT","WEST","WHAT","WHEN","WHOM","WIDE","WIFE","WILD","WILL","WIND","WINE","WING","WINS","WIRE","WISE","WISH","WITH","WOLF","WOOD","WORD","WORK","WORM","WRAP","YARD","YEAH","YEAR","YOGA","YOUR","ZERO","ZONE","ADAPT","ADULT","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALIEN","ALIGN","ALIKE","ALIVE","ALLOW","ALONE","ALTER","AMONG","ANGEL","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE","ARISE","ARRAY","ARROW","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWARD","AWARE","AWFUL","BACON","BADGE","BASIC","BASIS","BEACH","BEARD","BEAST","BEGIN","BEING","BELOW","BENCH","BREAD","BREAK","BRIEF","BRIGHT","BROAD","BUILD","BUILT","BUYER","CABLE","CANAL","CANDY","CAPED","CARGO","CARRY","CAUSE","CHAIN","CHAIR","CHART","CHECK","CHEST","CHIEF","CHILD","CHINA","CHOIR","CHOSE","CHUCK","CIVIL","CLAIM","CLASS","CLEAN","CLEAR","CLIMB","CLOCK","CLOSE","CLOTH","CLOUD","COACH","COAST","COUNT","COURT","COVER","CRAFT","CRASH","CREAM","CRIME","CROSS","CROWD","CROWN","CURVE","CYCLE","DAILY","DANCE","DATED","DEALT","DEATH","DEBUT","DELAY","DEPTH","DERBY","DIARY","DIGIT","DIRTY","DOUBT","DOZEN","DRAFT","DRAIN","DRAMA","DREAD","DREAM","DRESS","DRIFT","DRILL","DRINK","DRIVE","DROVE","DYING","EAGER","EARLY","EARTH","EIGHT","ELECT","ELITE","EMPTY","ENEMY","ENJOY","ENTER","ENTRY","EQUAL","ERROR","ESSAY","EVENT","EVERY","EXACT","EXIST","EXTRA","FAITH","FALSE","FAULT","FIBER","FIELD","FIFTH","FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH","FLEET","FLIGHT","FLOOR","FLUID","FOCUS","FORCE","FORTH","FORTY","FORUM","FOUND","FRAME","FRAUD","FRESH","FRONT","FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS","GLOBE","GLOVE","GOING","GRACE","GRADE","GRAND","GRAPH","GREAT","GREEN","GREET","GROUP","GROWN","GUARD","GUESS","GUEST","GUIDE","HABIT","HAPPY","HARSH","HEART","HEAVY","HELLO","HONEY","HONOR","HORSE","HOTEL","HOUSE","HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JOINT","JUDGE","JUICE","KNOCK","LABEL","LABOR","LARGE","LASER","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST","LEAVE","LEGAL","LEVEL","LIGHT","LIMIT","LINER","LINKS","LOCAL","LOGIC","LOOSE","LOWER","LUCKY","LUNCH","LYRIC","MAGIC","MAJOR","MAKER","MARCH","MATCH","MAYOR","MEDIA","METAL","METER","MICRO","MIDST","MIGHT","MINOR","MINUS","MIXED","MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE","MUSIC","NEVER","NIGHT","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR","OCEAN","OFFER","OFTEN","ORDER","OTHER","OUTER","OWNER","PANEL","PAPER","PARTY","PEACE","PHASE","PHONE","PHOTO","PIANO","PIECE","PILOT","PITCH","PLACE","PLAIN","PLANE","PLANT","PLATE","POINT","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROOF","PROUD","PROVE","PROXY","PULSE","PUNCH","QUERY","QUICK","QUIET","QUITE","RADIO","RAISE","RANGE","RAPID","RATIO","REACH","READY","REFER","REPLY","ROUTE","RIVER","ROUGH","ROUND","ROUTE","ROYAL","RURAL","SCALE","SCENE","SCOPE","SCORE","SENSE","SERVE","SETUP","SEVEN","SHADE","SHAKE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHIRT","SHOCK","SHOOT","SHORE","SHORT","SHOUT","SHOWN","SIGHT","SINCE","SIXTH","SIXTY","SIZED","SKILL","SLEEP","SLIDE","SMALL","SMART","SMILE","SMITH","SMOKE","SOLID","SOLVE","SOUND","SOUTH","SPACE","SPARE","SPEAK","SPEED","SPEND","SPENT","SPLIT","SPOKE","SPORT","STAFF","STAGE","STAKE","STAND","START","STATE","STEAK","STEEL","STICK","STILL","STOCK","STONE","STOOP","STORE","STORM","STORY","STRIP","STUCK","STUDY","STUFF","STYLE","SUGAR","SUITE","SUPER","SWEET","TABLE","TAKEN","TASTE","TAXES","TEACH","TEETH","TERMS","THANK","THEFT","THEIF","THEIR","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE","THREE","THROW","TIGHT","TIMES","TITLE","TODAY","TOKEN","TOTAL","TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND","TRIAL","TRIBE","TRICK","TRUCK","TRUST","TRUTH","TWICE","UNDER","UNION","UNITS","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VALUE","VIDEO","VIRUS","VISIT","VITAL","VOICE","WASTE","WATCH","WATER","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE","WOMAN","WORLD","WORRY","WORTH","WRITE","WRONG","YOUTH"];
 
         let currentMaster = "", centerLetter = "", outerLetters = [], weeklyValidWords = [], foundWords = [], totalScore = 0;
 
         function initGame() {
             const now = new Date();
             const weekSeed = Math.floor((now - new Date(Date.UTC(2024, 0, 1))) / 604800000);
+            const day = String(now.getDate()).padStart(2, '0');
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            const year = String(now.getFullYear()).slice(-2);
+            document.getElementById('puzzle-date').innerText = `${day} ${months[now.getMonth()]} ${year}`;
+
             currentMaster = masterWords[weekSeed % masterWords.length].toUpperCase();
             let rawLetters = currentMaster.split("");
-            let randIdx = Math.floor(Math.random() * rawLetters.length);
-            centerLetter = rawLetters[randIdx];
-            outerLetters = rawLetters.filter((_, i) => i !== randIdx).sort(() => Math.random() - 0.5);
-            
             const uniqueBowlSet = new Set(rawLetters);
-            let matches = commonDict.filter(w => {
-                if (!w.includes(centerLetter)) return false;
-                for (let char of w) { if (!uniqueBowlSet.has(char)) return false; }
-                return true;
+            const uniqueLetters = Array.from(uniqueBowlSet);
+            
+            let bestCenter = uniqueLetters[0];
+            let maxWords = 0;
+            let bestWordList = [];
+
+            uniqueLetters.forEach(testChar => {
+                let matches = commonDict.filter(w => {
+                    if (!w.includes(testChar)) return false;
+                    for (let char of w) { if (!uniqueBowlSet.has(char)) return false; }
+                    return true;
+                });
+                if (matches.length > maxWords) {
+                    maxWords = matches.length;
+                    bestCenter = testChar;
+                    bestWordList = matches;
+                }
             });
 
-            weeklyValidWords = matches.slice(0, 56);
+            centerLetter = bestCenter;
+            weeklyValidWords = bestWordList.slice(0, 60);
             if (!weeklyValidWords.includes(currentMaster)) weeklyValidWords.push(currentMaster);
+            
+            outerLetters = rawLetters.filter((l, i) => {
+                const firstIdx = rawLetters.indexOf(centerLetter);
+                return i !== firstIdx;
+            }).sort(() => Math.random() - 0.5);
             
             document.getElementById('center-el').innerText = centerLetter;
             document.getElementById('leftovers').innerText = weeklyValidWords.length;
+            
             renderLetters();
             updateUI();
+            startCountdown();
+        }
+
+        function startCountdown() {
+            function updateTimer() {
+                const now = new Date();
+                const nextMonday = new Date();
+                nextMonday.setDate(now.getDate() + (1 + 7 - now.getDay()) % 7);
+                nextMonday.setHours(0, 0, 0, 0);
+                const diff = nextMonday - now;
+                const d = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+                const h = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                const m = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                const s = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+                document.getElementById('countdown').innerText = `${s}S ${m}M ${h}H ${d}D`;
+            }
+            setInterval(updateTimer, 1000);
+            updateTimer();
         }
 
         function renderLetters() {
@@ -137,7 +191,7 @@
             outerLetters.sort(() => Math.random() - 0.5); 
             renderLetters(); 
             const spoon = document.getElementById('spoon');
-            spoon.classList.remove('animate-stir');
+            spoon.classList.remove('animate-stir', 'animate-scoop');
             void spoon.offsetWidth; 
             spoon.classList.add('animate-stir');
         }
@@ -146,10 +200,10 @@
             const input = document.getElementById('guess-input'), guess = input.value.toUpperCase().trim();
             const bowlChars = new Set([centerLetter, ...outerLetters]);
             input.value = "";
-            if (guess.length < 4) return showFeedback("Min. 4 letters for max. nutrition", "var(--nutri-red)");
+            if (guess.length < 4) return showFeedback("Min. 4 letters", "var(--nutri-red)");
             if (foundWords.includes(guess)) return showFeedback("Already eaten!", "var(--brand-blue)");
-            if (!guess.includes(centerLetter)) return showFeedback("Don’t forget that centre letter", "var(--nutri-red)");
-            for (let char of guess) { if (!bowlChars.has(char)) return showFeedback("Letter not in bowl!", "var(--nutri-red)"); }
+            if (!guess.includes(centerLetter)) return showFeedback("Missing centre letter", "var(--nutri-red)");
+            for (let char of guess) { if (!bowlChars.has(char)) return showFeedback("Not in bowl!", "var(--nutri-red)"); }
 
             if (weeklyValidWords.includes(guess)) { success(guess); } 
             else {
@@ -163,29 +217,31 @@
 
         function success(guess) {
             foundWords.push(guess);
-            const scores = {4:0.4, 5:0.5, 6:0.6, 7:0.7, 8:0.8};
-            totalScore += (scores[guess.length] || 0.9);
-            
+            const length = guess.length;
             let msg = "Yum!";
-            if (guess.length === 5) msg = "Tasty!";
-            else if (guess.length === 6) msg = "Delicious!";
-            else if (guess.length === 7) msg = "Nutritious!";
-            else if (guess.length === 8) msg = "Sensational!";
-            else if (guess.length >= 9) msg = "Magnificent!";
+            if (length === 4) msg = "Tasty!";
+            else if (length === 5) msg = "Delicious!";
+            else if (length === 6) msg = "Nutritious!";
+            else if (length === 7) msg = "Wholesome!";
+            else if (length === 8) msg = "High Fibre!";
+            else if (length >= 9) msg = "MAGNIFICENT!";
+            
+            const scores = {4:0.4, 5:0.5, 6:0.6, 7:0.7, 8:0.8};
+            totalScore += (scores[length] || 0.9);
             showFeedback(msg, "white");
-
+            
             const spoon = document.getElementById('spoon');
-            spoon.classList.remove('animate-scoop');
+            spoon.classList.remove('animate-stir', 'animate-scoop');
             void spoon.offsetWidth; 
             spoon.classList.add('animate-scoop');
-            
-            if (guess.length >= 9) celebrate(guess);
+
+            if (length >= 9) celebrate(guess);
             updateUI();
         }
 
         function celebrate(word) {
             const modal = document.getElementById('custom-modal'), modalText = document.getElementById('modal-text');
-            modalText.innerHTML = `🥣 Smashing!<br>You found:<br><span style="color:var(--bg-yellow); font-size: 32px;">${word}</span>`;
+            modalText.innerHTML = `🥣 Magnificent!<br>You found:<br><span style="color:var(--bg-yellow); font-size: 32px;">${word}</span>`;
             modal.style.display = 'flex';
         }
 
@@ -197,22 +253,23 @@
             document.getElementById('count').innerText = countFound;
             document.getElementById('leftovers').innerText = Math.max(0, totalPossible - countFound);
             document.getElementById('words-list').innerHTML = foundWords.map(w => `<span class="word-tag">${w}</span>`).join('');
+            
             if (countFound >= 5) { 
                 const b = document.getElementById('reveal-btn'); 
                 b.disabled = false; b.style.opacity = "1"; b.style.background = "var(--nutri-red)"; b.style.cursor = "pointer";
             }
-            const r = document.getElementById('rank');
-            if (countFound === 0) r.innerText = "Hangry";
-            else if (progressPercent < 20) r.innerText = "Snacking";
-            else if (progressPercent < 40) r.innerText = "Refueled";
-            else if (progressPercent < 70) r.innerText = "Healthy";
-            else if (progressPercent < 100) r.innerText = "Super Food";
-            else r.innerText = "Full!";
+            
+            const statusEl = document.getElementById('rank');
+            if (countFound === 0) statusEl.innerText = "Hangry";
+            else if (progressPercent < 20) statusEl.innerText = "Snacking";
+            else if (progressPercent < 40) statusEl.innerText = "Refueled";
+            else if (progressPercent < 70) statusEl.innerText = "Healthy";
+            else if (progressPercent < 100) statusEl.innerText = "Super Food";
+            else statusEl.innerText = "Full!";
         }
 
         function showFeedback(m, c) { const f = document.getElementById('feedback'); f.innerText = m; f.style.color = c; }
         function openRevealModal() { document.getElementById('modal-text').innerText = "The secret word is: " + currentMaster; document.getElementById('custom-modal').style.display='flex'; }
-        function shareScore() { navigator.clipboard.writeText(`🥣 MuesliMix: ${totalScore.toFixed(1)}g`); showFeedback("Copied!", "white"); }
         initGame();
     </script>
 </body>
