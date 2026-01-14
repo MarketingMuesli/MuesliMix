@@ -47,25 +47,28 @@
         .center-letter { width: 65px; height: 65px; background: var(--brand-teal); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; z-index: 4; border: 4px solid #fff; cursor: pointer; }
         .outer-letter { position: absolute; width: 48px; height: 48px; background: #fff; border: 3px solid var(--brand-blue); color: var(--brand-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; z-index: 4; cursor: pointer; }
 
+        /* Custom Backspace Shape */
         .backspace-btn { 
             position: absolute; 
             bottom: 0; 
             right: 15px; 
-            width: 44px; 
-            height: 44px; 
+            width: 50px; 
+            height: 40px; 
             background: var(--brand-blue); 
-            border: 3px solid var(--brand-teal); 
-            border-radius: 50%; 
             z-index: 10; 
             cursor: pointer; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-size: 26px; /* Increased size for mobile consistency */
-            line-height: 1;
             color: white; 
-            box-shadow: 0 3px 0 var(--brand-teal); 
-            transform: translateY(20px); 
+            font-size: 18px;
+            font-weight: 900;
+            transform: translateY(20px);
+            clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 25% 100%, 0% 50%);
+            border: none;
+            padding-left: 8px; /* Offset the X slightly due to the pointed shape */
+            box-shadow: 0 3px 0 var(--brand-teal); /* Note: clip-path hides standard box-shadow */
+            filter: drop-shadow(0 3px 0 var(--brand-teal));
         }
 
         .input-section { margin-top: 15px; display: flex; flex-direction: column; align-items: center; width: 100%; }
@@ -131,7 +134,7 @@
     <div class="game-layout">
         <div class="bowl-container" id="bowl">
             <div id="center-el" class="center-letter" onclick="addLetter(this.innerText)"></div>
-            <div class="backspace-btn" onclick="deleteLastLetter()">⌫</div>
+            <div class="backspace-btn" onclick="deleteLastLetter()">X</div>
         </div>
         <div class="spoon-graphic" id="spoon"><div class="spoon-head"></div><div class="spoon-handle"></div></div>
     </div>
